@@ -987,27 +987,47 @@
 (function(){
   'use strict';
 
-  // ── Mobile detection ──
+  // ── Capability detection ──
+  // Libraries load from CDN; if any fail (offline, blocked, CDN down) the page
+  // must still render fully. Everything below degrades gracefully.
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 640;
   if (isMobile) document.body.classList.add('mobile');
+  const hasGSAP = typeof gsap !== 'undefined';
+  const hasScrollTrigger = hasGSAP && typeof ScrollTrigger !== 'undefined';
+
+  // Reveal every animated element immediately (fallback / final state).
+  function showAll() {
+    document.querySelectorAll('.reveal, .hero-badge, .hero-sub, .hero-cta, .hero-title .word, #scroll-hint')
+      .forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; });
+    const nav = document.getElementById('nav');
+    if (nav) nav.style.opacity = '1';
+  }
 
   // ── Loader ──
   const loaderBar = document.getElementById('loader-bar');
   const loaderPct = document.getElementById('loader-pct');
   const loader = document.getElementById('loader');
-  let pct = 0;
+  let pct = 0, finished = false;
   const loaderInterval = setInterval(() => {
     pct += Math.random() * 18;
     if (pct >= 100) { pct = 100; clearInterval(loaderInterval); startSite(); }
     loaderBar.style.width = pct + '%';
     loaderPct.textContent = Math.floor(pct) + '%';
   }, 80);
+  // Safety net: never let the loader trap the page, even if the timer is starved.
+  setTimeout(() => { if (!finished) startSite(); }, 6000);
 
   function startSite() {
-    gsap.to(loader, {
-      opacity: 0, duration: 0.8, delay: 0.3,
-      onComplete: () => { loader.style.display = 'none'; animateHero(); }
-    });
+    if (finished) return;
+    finished = true;
+    const done = () => { loader.style.display = 'none'; animateHero(); };
+    if (hasGSAP) {
+      gsap.to(loader, { opacity: 0, duration: 0.8, delay: 0.3, onComplete: done });
+    } else {
+      loader.style.transition = 'opacity 0.8s';
+      loader.style.opacity = '0';
+      setTimeout(done, 800);
+    }
   }
 
   // ── Cursor ──
@@ -1032,7 +1052,9 @@
   }
 
   // ── Three.js Hero ──
+  const fallback = document.querySelector('.hero-gradient-fallback');
   if (!isMobile && typeof THREE !== 'undefined') {
+   try {
     const canvas = document.getElementById('hero-canvas');
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -1100,10 +1122,18 @@
       renderer.render(scene, camera);
     }
     animate();
+   } catch (e) {
+     // WebGL unavailable — show the CSS gradient hero instead.
+     if (fallback) fallback.style.display = 'block';
+   }
+  } else if (fallback) {
+    // Mobile or Three.js unavailable: use the lightweight gradient backdrop.
+    fallback.style.display = 'block';
   }
 
   // ── Hero Animation ──
   function animateHero() {
+    if (!hasGSAP) { showAll(); return; }
     const tl = gsap.timeline();
     tl.to('#nav', { opacity: 1, duration: 0.8 })
       .to('.hero-badge', { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
@@ -1119,55 +1149,72 @@
       .to('#scroll-hint', { opacity: 1, duration: 0.6 }, '-=0.2');
   }
 
-  // ── ScrollTrigger Reveals ──
-  gsap.registerPlugin(ScrollTrigger);
-
-  document.querySelectorAll('.reveal').forEach(el => {
-    gsap.fromTo(el,
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1, y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top 85%',
-          once: true
-        }
-      }
-    );
-  });
-
-  // ── Stat Counters ──
-  document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+  // ── ScrollTrigger Reveals & Counters ──
+  function animateCounter(el, useGsap) {
     const target = +el.dataset.target;
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => {
-        gsap.to({ val: 0 }, {
-          val: target,
-          duration: 1.8,
-          ease: 'power2.out',
-          onUpdate: function() { el.textContent = Math.floor(this.targets()[0].val) + (target >= 100 ? '+' : target > 10 ? '+' : ''); }
-        });
-      }
-    });
-  });
+    const suffix = target > 10 ? '+' : '';
+    if (useGsap) {
+      gsap.to({ val: 0 }, {
+        val: target, duration: 1.8, ease: 'power2.out',
+        onUpdate: function() { el.textContent = Math.floor(this.targets()[0].val) + suffix; }
+      });
+    } else {
+      const start = performance.now(), dur = 1500;
+      (function step(now) {
+        const p = Math.min((now - start) / dur, 1);
+        el.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3))) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      })(start);
+    }
+  }
 
-  // ── Tilt Cards ──
-  document.querySelectorAll('.tilt-card').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      gsap.to(card, { rotateY: x * 10, rotateX: -y * 8, duration: 0.4, ease: 'power2.out', transformPerspective: 800 });
+  if (hasScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    document.querySelectorAll('.reveal').forEach(el => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', once: true } }
+      );
     });
-    card.addEventListener('mouseleave', () => {
-      gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.6)' });
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+      ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true,
+        onEnter: () => animateCounter(el, true) });
     });
-  });
+  } else if ('IntersectionObserver' in window) {
+    // Fallback reveal/counters without GSAP.
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        const el = en.target;
+        el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        if (el.classList.contains('stat-number')) animateCounter(el, false);
+        obs.unobserve(el);
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => io.observe(el));
+  } else {
+    showAll();
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => animateCounter(el, false));
+  }
+
+  // ── Tilt Cards (GSAP only; harmless no-op without it) ──
+  if (hasGSAP && !isMobile) {
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        gsap.to(card, { rotateY: x * 10, rotateX: -y * 8, duration: 0.4, ease: 'power2.out', transformPerspective: 800 });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.6)' });
+      });
+    });
+  }
 
   // ── Testimonials ──
   const testimonialsData = [
