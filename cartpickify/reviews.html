@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All reviews, comparisons & guides — CartPickify</title>
+<meta name="description" content="Browse and search every CartPickify supplement review, comparison and guide.">
+<meta name="theme-color" content="#10231C">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="topbar"><strong>Affiliate disclosure:</strong> We may earn a commission when you buy through links on this site, at no extra cost to you. <a href="disclosure.html">How we make money</a></div>
+<header class="site-header">
+<div class="wrap">
+<a class="logo" href="index.html"><svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1E6B4F"/><path d="M9 12h3l3 10h9l2-7H14" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="26" r="1.6" fill="#FFFFFF"/><circle cx="23" cy="26" r="1.6" fill="#FFFFFF"/></svg><span>CartPickify</span></a>
+<button type="button" class="menu-toggle" aria-label="Open menu" aria-expanded="false"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<div class="nav-panel">
+<nav class="main-nav" aria-label="Main">
+<a href="category.html?goal=weight">Weight</a>
+<a href="category.html?goal=blood-sugar">Blood Sugar</a>
+<a href="category.html?goal=sleep">Sleep</a>
+<a href="category.html?goal=joints">Joints</a>
+<a href="category.html?goal=brain">Brain &amp; Focus</a>
+<a href="how-we-review.html">How we review</a>
+</nav>
+<div class="header-actions">
+<form action="reviews.html" method="get" role="search"><label for="search" class="sr-only">Search reviews</label><input id="search" name="q" class="header-search" type="search" placeholder="Search reviews…"></form>
+<a class="btn btn-brand btn-sm" href="quiz.html">Take the 60-sec quiz</a>
+</div>
+</div>
+</div>
+</header>
+<main>
+<div class="wrap page-hero">
+<span class="eyebrow">The library</span>
+<h1>Reviews, comparisons &amp; guides</h1>
+<p class="lead">Every product we’ve scored, every head-to-head, and the guides that teach you to read a label yourself.</p>
+<form id="archive-form" role="search" style="display:flex;gap:10px;flex-wrap:wrap;max-width:620px">
+<label for="archive-q" class="sr-only">Search reviews</label>
+<input id="archive-q" class="input" type="search" name="q" placeholder="Search by product, goal or topic…" style="flex:1 1 280px;width:auto">
+<button class="btn btn-brand btn-lg" type="submit">Search</button>
+</form>
+</div>
+<section class="wrap stack" style="gap:20px;padding-bottom:72px">
+<div class="row-between">
+<div class="filters" role="group" aria-label="Filter by type">
+<button type="button" class="chip" data-type="all">All</button>
+<button type="button" class="chip" data-type="Review">Reviews</button>
+<button type="button" class="chip" data-type="Comparison">Comparisons</button>
+<button type="button" class="chip" data-type="Guide">Guides</button>
+</div>
+<span id="archive-status" class="muted" style="font-size:14px" aria-live="polite"></span>
+</div>
+<div class="post-grid" id="archive"></div>
+</section>
+<section class="band"><div class="wrap section stack" style="gap:28px;padding-top:56px;padding-bottom:56px">
+<h2 class="h2">Browse by health goal</h2>
+<div class="goal-grid" data-goals></div>
+</div></section>
+<div style="height:72px"></div>
+<section class="wrap" style="padding-bottom:72px">
+<div class="newsletter">
+<div class="copy">
+<h2>Get the free “Label Decoder” cheat sheet</h2>
+<p>A one-page PDF to read any supplement label in under a minute, plus our monthly picks. Unsubscribe anytime.</p>
+</div>
+<form data-email-form data-success="Sent! Check your inbox for the Label Decoder.">
+<label for="nl-email" class="sr-only">Email address</label>
+<input id="nl-email" class="input" type="email" autocomplete="email" placeholder="you@email.com" required>
+<button type="submit" class="btn btn-brand btn-lg">Send it to me</button>
+<div class="form-msg" role="status"></div>
+</form>
+</div>
+</section>
+</main>
+<footer class="site-footer" id="disclosure">
+<div class="wrap">
+<div class="footer-top">
+<div class="footer-brand">
+<span class="name">CartPickify</span>
+<p>Independent health &amp; wellness product research.</p>
+</div>
+<nav class="footer-nav" aria-label="Footer">
+<div><strong>Reviews</strong><a href="category.html?goal=weight">Weight</a><a href="category.html?goal=blood-sugar">Blood sugar</a><a href="category.html?goal=sleep">Sleep</a><a href="reviews.html">All reviews</a></div>
+<div><strong>Company</strong><a href="about.html">About</a><a href="editorial-policy.html">Editorial policy</a><a href="how-we-review.html">How we review</a><a href="contact.html">Contact</a></div>
+<div><strong>Legal</strong><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="disclosure.html">Affiliate disclosure</a></div>
+</nav>
+</div>
+<div class="footer-legal">
+<p><strong>Affiliate disclosure:</strong> CartPickify is reader-supported. Some links are affiliate links (including ClickBank), and we may earn a commission if you purchase. This never changes our scores.</p>
+<p><strong>Health disclaimer:</strong> These statements have not been evaluated by the Food and Drug Administration. Products reviewed are not intended to diagnose, treat, cure or prevent any disease. Talk to your doctor before starting any supplement.</p>
+<p>© <span data-year>2026</span> CartPickify. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
